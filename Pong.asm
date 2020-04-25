@@ -1,0 +1,326 @@
+.MODEL SMALL
+.STACK 64
+
+.DATA
+    UPPER_WALL_START_ROW DW 30
+    UPPER_WALL_START_COL DW 20
+    UPPER_WALL_END_ROW DW 35
+    UPPER_WALL_END_COL DW 280
+
+    LEFT_WALL_START_ROW DW 35
+    LEFT_WALL_START_COL DW 20
+    LEFT_WALL_END_ROW DW 190
+    LEFT_WALL_END_COL DW 25
+
+    LOWER_WALL_START_ROW DW 185
+    LOWER_WALL_START_COL DW 25
+    LOWER_WALL_END_ROW DW 190
+    LOWER_WALL_END_COL DW 280
+
+    ROCKET_INIT_START_ROW DW 95
+    ROCKET_INIT_START_COL DW 281
+    ROCKET_INIT_END_ROW DW 125
+    ROCKET_INIT_END_COL DW 285
+
+    BALL_INIT_START_ROW DW 120
+    BALL_INIT_START_COL DW 260
+    BALL_INIT_END_ROW DW 130
+    BALL_INIT_END_COL DW 270
+
+    INIT_SCORE DW "0$"
+
+.CODE
+
+MAIN PROC FAR
+        MOV AX, @DATA
+        MOV DS, AX
+
+        CALL CLEAR_SCREEN
+        CALL SET_GRAPHIC_MODE
+
+        CALL SET_CURSOR_POSITION
+        CALL DRAW_INIT_SCORE
+
+        CALL DRAW_INIT_ROCKET
+        CALL DRAW_WALLS
+        CALL DRAW_INIT_BALL
+
+        MOV AL, 0D ; IS THIS THE FIRST TIME WE ARE MOVING ROCKET?
+
+    MAIN_LOOP:
+        CALL BALL_MOVEMENT
+        MOV AH, 01
+        INT 16H                      ; CHECK THE KEY PRESS
+        JZ MAIN_LOOP
+        CALL CHECK_INPUT
+        CMP AL, 'Q'                  ; Q KEY PRESSED
+        JE MAIN_DONE
+        CMP AL, 'q'                  ; q KEY PRESSED
+        JE MAIN_DONE
+        JMP MAIN_LOOP
+
+    MAIN_DONE:
+        MOV AX, 4C00H                ; EXIT TO OPERATING SYSTEM
+        INT 21H
+
+MAIN ENDP
+
+CLEAR_SCREEN PROC
+        MOV AX, 0600H                ; SCROLL DOWN
+        MOV BH, 07H                  ; SCREEN COLOR
+        MOV CX, 0000H                ; FROM TOP LEFT
+        MOV DX, 184FH                ; TO THE BOTTOM RIGHT
+        INT 10H
+
+        RET
+ENDP CLEAR_SCREEN
+
+SET_GRAPHIC_MODE PROC
+        MOV AH, 00H
+        MOV AL, 13H
+        INT 10H
+
+        RET
+ENDP SET_GRAPHIC_MODE
+
+SET_CURSOR_POSITION PROC
+        MOV DH, 2
+        MOV DL, 20
+        MOV BH, 0
+        MOV AH, 2
+        INT 10H
+
+        RET
+ENDP SET_CURSOR_POSITION
+
+DRAW_INIT_SCORE PROC
+        MOV DX, OFFSET INIT_SCORE
+        MOV AH,9
+        INT 21H
+
+        RET
+ENDP DRAW_INIT_SCORE
+
+DRAW_WALLS PROC
+        MOV AH, 0CH
+        MOV AL, 1111B                ; WHITE COLOR
+
+    UPPER_WALL:
+        MOV DX, UPPER_WALL_START_ROW
+    UW_LOOP1:
+        MOV CX, UPPER_WALL_START_COL
+
+    UW_LOOP2:
+        INT 10H
+        INC CX
+        CMP CX, UPPER_WALL_END_COL
+        JNZ UW_LOOP2
+        INC DX
+        CMP DX, UPPER_WALL_END_ROW
+        JNZ UW_LOOP1
+
+    LEFT_WALL:
+        MOV DX, LEFT_WALL_START_ROW
+    LW_LOOP1:
+        MOV CX, LEFT_WALL_START_COL
+
+    LW_LOOP2:
+        INT 10H
+        INC CX
+        CMP CX, LEFT_WALL_END_COL
+        JNZ LW_LOOP2
+        INC DX
+        CMP DX, LEFT_WALL_END_ROW
+        JNZ LW_LOOP1
+
+    LOWER_WALL:
+        MOV DX, LOWER_WALL_START_ROW
+    LOW_LOOP1:
+        MOV CX, LOWER_WALL_START_COL
+
+    LOW_LOOP2:
+        INT 10H
+        INC CX
+        CMP CX, LOWER_WALL_END_COL
+        JNZ LOW_LOOP2
+        INC DX
+        CMP DX, LOWER_WALL_END_ROW
+        JNZ LOW_LOOP1
+
+        RET
+ENDP DRAW_WALLS
+
+DRAW_INIT_BALL PROC
+        MOV AH, 0CH
+        MOV AL, 1111B                ; WHITE COLOR
+
+    INIT_BALL:
+        MOV DX, BALL_INIT_START_ROW
+    IB_LOOP1:
+        MOV CX, BALL_INIT_START_COL
+
+    IB_LOOP2:
+        INT 10H
+        INC CX
+        CMP CX, BALL_INIT_END_COL
+        JNZ IB_LOOP2
+        INC DX
+        CMP DX, BALL_INIT_END_ROW
+        JNZ IB_LOOP1
+
+        RET
+ENDP DRAW_INIT_BALL
+
+DRAW_INIT_ROCKET PROC
+        MOV AH, 0CH
+        MOV AL, 1111B                ; WHITE COLOR
+
+    INIT_ROCKET:
+        MOV DX, ROCKET_INIT_START_ROW
+    IR_LOOP1:
+        MOV CX, ROCKET_INIT_START_COL
+
+    IR_LOOP2:
+        INT 10H
+        INC CX
+        CMP CX, ROCKET_INIT_END_COL
+        JNZ IR_LOOP2
+        INC DX
+        CMP DX, ROCKET_INIT_END_ROW
+        JNZ IR_LOOP1
+
+        RET
+ENDP DRAW_INIT_ROCKET
+
+CHECK_INPUT PROC
+        MOV AH, 0
+        INT 16H
+        CMP AL, 30D                  ; UP KEY PRESSED
+        JE UP_KEYSTROKE
+        CMP AL, 'W'                  ; W KEY PRESSED
+        JE UP_KEYSTROKE
+        CMP AL, 'w'                  ; w KEY PRESSED
+        JE UP_KEYSTROKE
+        CMP AL, 31D                  ; DOWN KEY PRESSED
+        JE DOWN_KEYSTROKE
+        CMP AL, 'S'                  ; S KEY PRESSED
+        JE DOWN_KEYSTROKE
+        CMP AL, 's'                  ; s KEY PRESSED
+        JE DOWN_KEYSTROKE
+        JMP CI_DONE
+
+    UP_KEYSTROKE:
+        CALL SHIFT_UP_ROCKET
+        JMP CI_DONE
+        ; SHIFT_LOOP:
+        ; CALL DELAY
+        ; CMP UPPER_WALL_END_COL, 300
+        ; JNZ SHIFT_LOOP
+    DOWN_KEYSTROKE:
+        CALL SHIFT_DOWN_ROCKET
+        JMP CI_DONE
+
+    CI_DONE:
+        RET
+ENDP CHECK_INPUT
+
+SHIFT_UP_ROCKET PROC
+        MOV AH, 0CH
+        MOV BX, 3                    ; WITH ONE INPUT, SHIFT 3 PIXELS
+
+    SUR:
+        MOV AL, 0
+        MOV DX, ROCKET_INIT_START_ROW
+        CMP DX, UPPER_WALL_END_ROW   ; CHECK IF WE REACHED UPPER LIMIT
+        JE SUR_DONE
+
+        MOV DX, ROCKET_INIT_END_ROW
+        MOV CX, ROCKET_INIT_START_COL
+    SUR_LOOP1:
+        INT 10H
+        INC CX
+        CMP CX, ROCKET_INIT_END_COL
+        JNZ SUR_LOOP1
+
+        MOV AL, 1111B
+
+        MOV DX, ROCKET_INIT_START_ROW
+        MOV CX, ROCKET_INIT_START_COL
+    SUR_LOOP2:
+        INT 10H
+        INC CX
+        CMP CX, ROCKET_INIT_END_COL
+        JNZ SUR_LOOP2
+
+        DEC ROCKET_INIT_START_ROW
+        DEC ROCKET_INIT_END_ROW
+
+        SUB BX, 1
+        JNZ SUR
+
+    SUR_DONE:
+        RET
+ENDP SHIFT_UP_ROCKET
+
+SHIFT_DOWN_ROCKET PROC
+        MOV AH, 0CH
+        MOV BX, 3                    ; WITH ONE INPUT, SHIFT 3 PIXELS
+
+    SDR:
+        MOV AL, 0
+        MOV DX, ROCKET_INIT_END_ROW
+        CMP DX, LOWER_WALL_START_ROW ; CHECK IF WE REACHED LOWER LIMIT
+        JE SDR_DONE
+
+        MOV DX, ROCKET_INIT_START_ROW
+        MOV CX, ROCKET_INIT_START_COL
+    SDR_LOOP1:
+        INT 10H
+        INC CX
+        CMP CX, ROCKET_INIT_END_COL
+        JNZ SDR_LOOP1
+
+        MOV AL, 1111B
+
+        MOV DX, ROCKET_INIT_END_ROW
+        MOV CX, ROCKET_INIT_START_COL
+    SDR_LOOP2:
+        INT 10H
+        INC CX
+        CMP CX, ROCKET_INIT_END_COL
+        JNZ SDR_LOOP2
+
+        INC ROCKET_INIT_START_ROW
+        INC ROCKET_INIT_END_ROW
+
+        SUB BX, 1
+        JNZ SDR
+
+    SDR_DONE:
+        RET
+ENDP SHIFT_DOWN_ROCKET
+
+BALL_MOVEMENT PROC
+        CMP AL, 0D
+        JE BM_CALL_BMLL
+
+    BM_CALL_BMLL:
+        CALL BMLL
+
+        RET
+ENDP BALL_MOVEMENT
+
+BMLL PROC
+    
+ENDP BMLL
+
+DELAY PROC
+        MOV CX, 4FFFH
+
+    D_LOOP:
+        LOOP D_LOOP
+
+        RET
+ENDP DELAY
+
+END MAIN
