@@ -27,7 +27,7 @@
     BALL_INIT_END_ROW DW 130
     BALL_INIT_END_COL DW 270
 
-    BALL_STATE DW 0                  ; 0:LL  1:UL    2:UR    3:LR
+    BALL_STATE DW 0                   ; 0:LL  1:UL    2:UR    3:LR
 
     INIT_SCORE DW "0$"
 
@@ -48,31 +48,31 @@ MAIN PROC FAR
         CALL DRAW_INIT_BALL
 
         MOV AH, 07
-        INT 21H                      ; WAIT UNTIL A KEY IS PRESSED, THEN START THE GAME
+        INT 21H                       ; WAIT UNTIL A KEY IS PRESSED, THEN START THE GAME
 
     MAIN_LOOP:
         CALL BALL_MOVEMENT
         MOV AH, 01
-        INT 16H                      ; CHECK THE KEY PRESS
+        INT 16H                       ; CHECK THE KEY PRESS
         JZ MAIN_LOOP
         CALL CHECK_INPUT
-        CMP AL, 'Q'                  ; Q KEY PRESSED
+        CMP AL, 'Q'                   ; Q KEY PRESSED
         JE MAIN_DONE
-        CMP AL, 'q'                  ; q KEY PRESSED
+        CMP AL, 'q'                   ; q KEY PRESSED
         JE MAIN_DONE
         JMP MAIN_LOOP
 
     MAIN_DONE:
-        MOV AX, 4C00H                ; EXIT TO OPERATING SYSTEM
+        MOV AX, 4C00H                 ; EXIT TO OPERATING SYSTEM
         INT 21H
 
 MAIN ENDP
 
 CLEAR_SCREEN PROC
-        MOV AX, 0600H                ; SCROLL DOWN
-        MOV BH, 07H                  ; SCREEN COLOR
-        MOV CX, 0000H                ; FROM TOP LEFT
-        MOV DX, 184FH                ; TO THE BOTTOM RIGHT
+        MOV AX, 0600H                 ; SCROLL DOWN
+        MOV BH, 07H                   ; SCREEN COLOR
+        MOV CX, 0000H                 ; FROM TOP LEFT
+        MOV DX, 184FH                 ; TO THE BOTTOM RIGHT
         INT 10H
 
         RET
@@ -106,7 +106,7 @@ ENDP DRAW_INIT_SCORE
 
 DRAW_WALLS PROC
         MOV AH, 0CH
-        MOV AL, 1111B                ; WHITE COLOR
+        MOV AL, 1111B                 ; WHITE COLOR
 
     UPPER_WALL:
         MOV DX, UPPER_WALL_START_ROW
@@ -155,7 +155,7 @@ ENDP DRAW_WALLS
 
 DRAW_INIT_BALL PROC
         MOV AH, 0CH
-        MOV AL, 1111B                ; WHITE COLOR
+        MOV AL, 1111B                 ; WHITE COLOR
 
     INIT_BALL:
         MOV DX, BALL_INIT_START_ROW
@@ -176,7 +176,7 @@ ENDP DRAW_INIT_BALL
 
 DRAW_INIT_ROCKET PROC
         MOV AH, 0CH
-        MOV AL, 1111B                ; WHITE COLOR
+        MOV AL, 1111B                 ; WHITE COLOR
 
     INIT_ROCKET:
         MOV DX, ROCKET_INIT_START_ROW
@@ -198,17 +198,17 @@ ENDP DRAW_INIT_ROCKET
 CHECK_INPUT PROC
         MOV AH, 0
         INT 16H
-        CMP AL, 30D                  ; UP KEY PRESSED
+        CMP AL, 30D                   ; UP KEY PRESSED
         JE UP_KEYSTROKE
-        CMP AL, 'W'                  ; W KEY PRESSED
+        CMP AL, 'W'                   ; W KEY PRESSED
         JE UP_KEYSTROKE
-        CMP AL, 'w'                  ; w KEY PRESSED
+        CMP AL, 'w'                   ; w KEY PRESSED
         JE UP_KEYSTROKE
-        CMP AL, 31D                  ; DOWN KEY PRESSED
+        CMP AL, 31D                   ; DOWN KEY PRESSED
         JE DOWN_KEYSTROKE
-        CMP AL, 'S'                  ; S KEY PRESSED
+        CMP AL, 'S'                   ; S KEY PRESSED
         JE DOWN_KEYSTROKE
-        CMP AL, 's'                  ; s KEY PRESSED
+        CMP AL, 's'                   ; s KEY PRESSED
         JE DOWN_KEYSTROKE
         JMP CI_DONE
 
@@ -229,12 +229,12 @@ ENDP CHECK_INPUT
 
 SHIFT_UP_ROCKET PROC
         MOV AH, 0CH
-        MOV BX, 3                    ; WITH ONE INPUT, SHIFT 3 PIXELS
+        MOV BX, 3                     ; WITH ONE INPUT, SHIFT 3 PIXELS
 
     SUR:
         MOV AL, 0
         MOV DX, ROCKET_INIT_START_ROW
-        CMP DX, UPPER_WALL_END_ROW   ; CHECK IF WE REACHED UPPER LIMIT
+        CMP DX, UPPER_WALL_END_ROW    ; CHECK IF WE REACHED UPPER LIMIT
         JE SUR_DONE
 
         MOV DX, ROCKET_INIT_END_ROW
@@ -267,12 +267,12 @@ ENDP SHIFT_UP_ROCKET
 
 SHIFT_DOWN_ROCKET PROC
         MOV AH, 0CH
-        MOV BX, 3                    ; WITH ONE INPUT, SHIFT 3 PIXELS
+        MOV BX, 3                     ; WITH ONE INPUT, SHIFT 3 PIXELS
 
     SDR:
         MOV AL, 0
         MOV DX, ROCKET_INIT_END_ROW
-        CMP DX, LOWER_WALL_START_ROW ; CHECK IF WE REACHED LOWER LIMIT
+        CMP DX, LOWER_WALL_START_ROW  ; CHECK IF WE REACHED LOWER LIMIT
         JE SDR_DONE
 
         MOV DX, ROCKET_INIT_START_ROW
@@ -332,16 +332,16 @@ ENDP BALL_MOVEMENT
 
 BMLL PROC
         MOV AH, 0CH
-        MOV BX, 3                    ; WITH ONE INPUT, SHIFT 3 PIXELS
+        MOV BX, 3                     ; WITH ONE INPUT, SHIFT 3 PIXELS
 
     BMLL_MAIN_LOOP:
         MOV AL, 0
 
         MOV DX, BALL_INIT_END_ROW
-        CMP DX, LOWER_WALL_START_ROW ; CHECK IF WE HIT LOWER WALL
-        JE BMLL_CM_UL                ; CHANGE MOVEMENT TO UL
+        CMP DX, LOWER_WALL_START_ROW  ; CHECK IF WE HIT LOWER WALL
+        JE BMLL_CM_UL                 ; CHANGE MOVEMENT TO UL
         MOV DX, BALL_INIT_START_COL
-        CMP DX, LEFT_WALL_END_COL    ; CHECK IF WE HIT LEFT WALL
+        CMP DX, LEFT_WALL_END_COL     ; CHECK IF WE HIT LEFT WALL
         JE BMLL_CM_LR
 
         MOV DX, BALL_INIT_START_ROW
@@ -393,10 +393,10 @@ BMLL PROC
         JMP BMLL_DONE
 
     BMLL_CM_UL:
-        MOV BALL_STATE, 1            ; CHANGE DIRECTION TO UL
+        MOV BALL_STATE, 1             ; CHANGE DIRECTION TO UL
         JMP BMLL_DONE
     BMLL_CM_LR:
-        MOV BALL_STATE, 2            ; CHANGE DIRECTION TO UR
+        MOV BALL_STATE, 3             ; CHANGE DIRECTION TO LR
         JMP BMLL_DONE
 
     BMLL_DONE:
@@ -405,15 +405,15 @@ ENDP BMLL
 
 BMUL PROC
         MOV AH, 0CH
-        MOV BX, 3                    ; WITH ONE INPUT, SHIFT 3 PIXELS
+        MOV BX, 3                     ; WITH ONE INPUT, SHIFT 3 PIXELS
 
     BMUL_MAIN_LOOP:
         MOV AL, 0
         MOV DX, BALL_INIT_START_COL
-        CMP DX, LEFT_WALL_END_COL    ; CHECK IF WE HIT LEFT WALL
+        CMP DX, LEFT_WALL_END_COL     ; CHECK IF WE HIT LEFT WALL
         JE BMUL_CM_UR
         MOV DX, BALL_INIT_START_ROW
-        CMP DX, UPPER_WALL_END_ROW   ; CHECK IF WE HIT UPPER WALL
+        CMP DX, UPPER_WALL_END_ROW    ; CHECK IF WE HIT UPPER WALL
         JE BMUL_CM_LL
 
         MOV DX, BALL_INIT_END_ROW
@@ -466,10 +466,10 @@ BMUL PROC
         JMP BMUL_DONE
 
     BMUL_CM_UR:
-        MOV BALL_STATE, 2            ; CHANGE DIRECTION TO UR
+        MOV BALL_STATE, 2             ; CHANGE DIRECTION TO UR
         JMP BMUL_DONE
     BMUL_CM_LL:
-        MOV BALL_STATE, 0            ; CHANGE DIRECTION TO LL
+        MOV BALL_STATE, 0             ; CHANGE DIRECTION TO LL
         JMP BMUL_DONE
 
     BMUL_DONE:
@@ -477,12 +477,180 @@ BMUL PROC
 ENDP BMUL
 
 BMUR PROC
+        MOV AH, 0CH
+        MOV BX, 3                     ; WITH ONE INPUT, SHIFT 3 PIXELS
 
+    BMUR_MAIN_LOOP:
+        MOV AL, 0
+
+        MOV DX, BALL_INIT_START_ROW
+        CMP DX, UPPER_WALL_END_ROW    ; CHECK IF WE HIT UPPER WALL
+        JE BMUR_CM_LR                 ; CHANGE MOVEMENT TO LR
+        MOV DX, BALL_INIT_END_COL
+        CMP DX, ROCKET_INIT_START_COL ; CHECK IF WE ARE GOING TO HIT ROCKET OR NOT
+        JE BMUR_ROCKET_CHECK
+
+        MOV DX, BALL_INIT_END_ROW
+        DEC DX
+        MOV CX, BALL_INIT_START_COL
+    BMUR_LOOP1:
+        INT 10H
+        INC CX
+        CMP CX, BALL_INIT_END_COL
+        JNZ BMUR_LOOP1
+
+        INC BALL_INIT_END_COL
+        DEC BALL_INIT_END_ROW
+
+        MOV DX, BALL_INIT_START_ROW
+        MOV CX, BALL_INIT_START_COL
+    BMUR_LOOP2:
+        INT 10H
+        INC DX
+        CMP DX, BALL_INIT_END_ROW
+        JNZ BMUR_LOOP2
+
+        INC BALL_INIT_START_COL
+        DEC BALL_INIT_START_ROW
+
+        MOV AL, 1111B
+
+        MOV DX, BALL_INIT_START_ROW
+        MOV CX, BALL_INIT_START_COL
+    BMUR_LOOP3:
+        INT 10H
+        INC CX
+        CMP CX, BALL_INIT_END_COL
+        JNZ BMUR_LOOP3
+
+        MOV DX, BALL_INIT_START_ROW
+        INC DX
+        MOV CX, BALL_INIT_END_COL
+        DEC CX
+    BMUR_LOOP4:
+        INT 10H
+        INC DX
+        CMP DX, BALL_INIT_END_ROW
+        JNZ BMUR_LOOP4
+
+        CALL BM_DELAY
+
+        SUB BX, 1
+        JNZ BMUR_MAIN_LOOP
+        JMP BMUR_DONE
+
+    BMUR_CM_LR:
+        MOV BALL_STATE, 3             ; CHANGE DIRECTION TO LR
+        JMP BMUR_DONE
+
+    BMUR_ROCKET_CHECK:
+        MOV DX, BALL_INIT_START_ROW
+        CMP DX, ROCKET_INIT_START_ROW
+        JNGE BMUR_FAILED
+        MOV DX, BALL_INIT_END_ROW
+        CMP DX, ROCKET_INIT_END_ROW
+        JNLE BMUR_FAILED
+        JMP BMUR_BALL_HIT
+
+    BMUR_BALL_HIT:
+        ; CHANGE BALL COLOR
+        MOV BALL_STATE, 1             ; CHANGE DIRECTION TO UL
+        JMP BMUR_DONE
+
+    BMUR_FAILED:
+        ; GAME FAILED
+        JMP BMUR_DONE
+
+    BMUR_DONE:
         RET
 ENDP BMUR
 
 BMLR PROC
+        MOV AH, 0CH
+        MOV BX, 3                     ; WITH ONE INPUT, SHIFT 3 PIXELS
 
+    BMLR_MAIN_LOOP:
+        MOV AL, 0
+
+        MOV DX, BALL_INIT_END_ROW
+        CMP DX, LOWER_WALL_START_ROW  ; CHECK IF WE HIT LOWER WALL
+        JE BMLR_CM_UR                 ; CHANGE MOVEMENT TO UR
+        MOV DX, BALL_INIT_END_COL
+        CMP DX, ROCKET_INIT_START_COL ; CHECK IF WE ARE GOING TO HIT ROCKET OR NOT
+        JE BMLR_ROCKET_CHECK
+
+        MOV DX, BALL_INIT_START_ROW
+        MOV CX, BALL_INIT_START_COL
+    BMLR_LOOP1:
+        INT 10H
+        INC CX
+        CMP CX, BALL_INIT_END_COL
+        JNZ BMLR_LOOP1
+
+        INC BALL_INIT_START_COL
+        INC BALL_INIT_START_ROW
+
+        MOV DX, BALL_INIT_START_ROW
+        MOV CX, BALL_INIT_START_COL
+        DEC CX
+    BMLR_LOOP2:
+        INT 10H
+        INC DX
+        CMP DX, BALL_INIT_END_ROW
+        JNZ BMLR_LOOP2
+
+        INC BALL_INIT_END_COL
+        INC BALL_INIT_END_ROW
+
+        MOV AL, 1111B
+
+        MOV DX, BALL_INIT_END_ROW
+        DEC DX
+        MOV CX, BALL_INIT_START_COL
+    BMLR_LOOP3:
+        INT 10H
+        INC CX
+        CMP CX, BALL_INIT_END_COL
+        JNZ BMLR_LOOP3
+
+        MOV DX, BALL_INIT_START_ROW
+        MOV CX, BALL_INIT_END_COL
+        DEC CX
+    BMLR_LOOP4:
+        INT 10H
+        INC DX
+        CMP DX, BALL_INIT_END_ROW
+        JNZ BMLR_LOOP4
+
+        CALL BM_DELAY
+
+        SUB BX, 1
+        JNZ BMLR_MAIN_LOOP
+        JMP BMLR_DONE
+
+    BMLR_CM_UR:
+        MOV BALL_STATE, 2             ; CHANGE DIRECTION TO UR
+        JMP BMLR_DONE
+
+    BMLR_ROCKET_CHECK:
+        MOV DX, BALL_INIT_START_ROW
+        CMP DX, ROCKET_INIT_START_ROW
+        JNGE BMLR_FAILED
+        MOV DX, BALL_INIT_END_ROW
+        CMP DX, ROCKET_INIT_END_ROW
+        JNLE BMLR_FAILED
+        JMP BMLR_BALL_HIT
+
+    BMLR_BALL_HIT:
+        ; CHANGE BALL COLOR
+        MOV BALL_STATE, 0             ; CHANGE DIRECTION TO LL
+        JMP BMLR_DONE
+
+    BMLR_FAILED:
+        ; GAME FAILED
+        JMP BMLR_DONE
+
+    BMLR_DONE:
         RET
 ENDP BMLR
 
