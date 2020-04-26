@@ -29,8 +29,12 @@
 
     BALL_STATE DW 0                   ; 0:LL  1:UL    2:UR    3:LR
 
+    INIT_SCORE DB 0
     INIT_SCORE_LD DB '0'
     INIT_SCORE_HD DB '0'
+
+    MSG_WON DW "You won the game!"
+    MSG_LOSE DW "You lose the game!"
 
 .CODE
 
@@ -64,6 +68,12 @@ MAIN PROC FAR
 
     MAIN_LOOP:
         CALL BALL_MOVEMENT
+
+        CMP BALL_STATE, 4             ; CHECK IF USER WON THE GAME
+        JE MAIN_WON
+        CMP BALL_STATE, 5             ; CHECK IF USER LOSE THE GAME
+        JE MAIN_LOSE
+
         MOV AH, 01
         INT 16H                       ; CHECK THE KEY PRESS
         JZ MAIN_LOOP
@@ -73,6 +83,40 @@ MAIN PROC FAR
         CMP AL, 'q'                   ; q KEY PRESSED
         JE MAIN_DONE
         JMP MAIN_LOOP
+
+    MAIN_WON:
+        MOV AL, 1
+        MOV BH, 0
+        MOV BL, 0000_1010B            ; RED ON DOS
+        MOV CX, 17                    ; MSG LENGTH
+        MOV DH, 12
+        MOV DL, 12
+        PUSH DS
+        POP ES
+        MOV BP, OFFSET MSG_WON
+        MOV AH, 13H
+        INT 10H
+
+        MOV AH, 7
+        INT 21H                       ; WAIT FOR USER TO SEE MESSAGE
+        JMP MAIN_DONE
+
+    MAIN_LOSE:
+        MOV AL, 1
+        MOV BH, 0
+        MOV BL, 0000_0100B            ; RED ON DOS
+        MOV CX, 18                    ; MSG LENGTH
+        MOV DH, 12
+        MOV DL, 12
+        PUSH DS
+        POP ES
+        MOV BP, OFFSET MSG_LOSE
+        MOV AH, 13H
+        INT 10H
+
+        MOV AH, 7
+        INT 21H                       ; WAIT FOR USER TO SEE MESSAGE
+        JMP MAIN_DONE
 
     MAIN_DONE:
         MOV AX, 4C00H                 ; EXIT TO OPERATING SYSTEM
@@ -339,6 +383,7 @@ BALL_MOVEMENT PROC
         JE CALL_BMUR
         CMP CX, 3
         JE CALL_BMLR
+        JMP BM_DONE
 
     CALL_BMLL:
         CALL BMLL
@@ -581,11 +626,19 @@ BMUR PROC
     BMUR_BALL_HIT:
         ; CHANGE BALL COLOR
         CALL INC_AND_PRINT_SCORE
+        CMP INIT_SCORE, 30
+        JE BMUR_WON
         MOV BALL_STATE, 1             ; CHANGE DIRECTION TO UL
+        JMP BMUR_DONE
+
+    BMUR_WON:
+        ; WON GAME
+        MOV BALL_STATE, 4             ; WON THE GAME
         JMP BMUR_DONE
 
     BMUR_FAILED:
         ; GAME FAILED
+        MOV BALL_STATE, 5
         JMP BMUR_DONE
 
     BMUR_DONE:
@@ -671,11 +724,19 @@ BMLR PROC
     BMLR_BALL_HIT:
         ; CHANGE BALL COLOR
         CALL INC_AND_PRINT_SCORE
+        CMP INIT_SCORE, 30
+        JE BMLR_WON
         MOV BALL_STATE, 0             ; CHANGE DIRECTION TO LL
+        JMP BMLR_DONE
+
+    BMLR_WON:
+        ; WON GAME
+        MOV BALL_STATE, 4             ; WON THE GAME
         JMP BMLR_DONE
 
     BMLR_FAILED:
         ; GAME FAILED
+        MOV BALL_STATE, 5
         JMP BMLR_DONE
 
     BMLR_DONE:
@@ -699,6 +760,7 @@ INC_AND_PRINT_SCORE PROC
         CALL DRAW_INIT_SCORE_LD
 
     IAPS_END:
+        INC INIT_SCORE
         RET
 ENDP INC_AND_PRINT_SCORE
 
