@@ -27,7 +27,7 @@
     BALL_INIT_END_ROW DW 130
     BALL_INIT_END_COL DW 270
 
-    BALL_STATE DW 0                   ; 0:LL  1:UL    2:UR    3:LR
+    BALL_STATE DW 2                   ; 0:LL  1:UL    2:UR    3:LR
     BALL_COLOR DB 0FH
 
     INIT_SCORE DB 0
@@ -52,7 +52,7 @@ MAIN PROC FAR
         CALL DRAW_INIT_SCORE_HD
 
         CALL DRAW_INIT_ROCKET
-        CALL DRAW_WALLS
+        ; CALL DRAW_WALLS
         CALL DRAW_INIT_BALL
 
     MAIN_KEYPRESS_LOOP:
@@ -67,7 +67,7 @@ MAIN PROC FAR
         CMP AL, 'q'                   ; q KEY PRESSED
         JE MAIN_DONE
 
-        CALL RANDOM_START             ; MAKE START OF THE GAME RANDOM
+        ; CALL RANDOM_START             ; MAKE START OF THE GAME RANDOM
 
     MAIN_LOOP:
         CALL BALL_MOVEMENT
@@ -477,7 +477,7 @@ BMLL PROC
         CMP CX, BALL_INIT_END_COL
         JNZ BMLL_LOOP4
 
-        CALL BM_DELAY
+        ; CALL BM_DELAY
 
         SUB BX, 1
         JNZ BMLL_MAIN_LOOP
@@ -550,7 +550,7 @@ BMUL PROC
         CMP DX, BALL_INIT_END_ROW
         JNZ BMUL_LOOP4
 
-        CALL BM_DELAY
+        ; CALL BM_DELAY
 
         SUB BX, 1
         JNZ BMUL_MAIN_LOOP
@@ -624,7 +624,7 @@ BMUR PROC
         CMP DX, BALL_INIT_END_ROW
         JNZ BMUR_LOOP4
 
-        CALL BM_DELAY
+        ; CALL BM_DELAY
 
         SUB BX, 1
         JNZ BMUR_MAIN_LOOP
@@ -652,10 +652,12 @@ BMUR PROC
         JMP BMUR_DONE
 
     BMUR_WON:
+        ; WON GAME
         MOV BALL_STATE, 4             ; WON THE GAME
         JMP BMUR_DONE
 
     BMUR_FAILED:
+        ; GAME FAILED
         MOV BALL_STATE, 5
         JMP BMUR_DONE
 
@@ -720,7 +722,7 @@ BMLR PROC
         CMP DX, BALL_INIT_END_ROW
         JNZ BMLR_LOOP4
 
-        CALL BM_DELAY
+        ; CALL BM_DELAY
 
         SUB BX, 1
         JNZ BMLR_MAIN_LOOP
@@ -748,10 +750,12 @@ BMLR PROC
         JMP BMLR_DONE
 
     BMLR_WON:
+        ; WON GAME
         MOV BALL_STATE, 4             ; WON THE GAME
         JMP BMLR_DONE
 
     BMLR_FAILED:
+        ; GAME FAILED
         MOV BALL_STATE, 5
         JMP BMLR_DONE
 
