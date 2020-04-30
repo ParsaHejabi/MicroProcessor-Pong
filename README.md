@@ -5,3 +5,9 @@ This repository was created for Micro Processor course at Shahid Beheshti Univer
 ## Square ball
 
 ![Start screen with square ball](https://github.com/ParsaHejabi/MicroProcessor-Pong/blob/master/StartScreen.png "Start screen with square ball")
+
+![Losing screen](https://github.com/ParsaHejabi/MicroProcessor-Pong/blob/master/LosingGame.png "Losing screen")
+
+## Circle ball
+
+![Start screen with circle ball](https://github.com/ParsaHejabi/MicroProcessor-Pong/blob/master/StartScreenCircle.png "Start screen with circle ball")
